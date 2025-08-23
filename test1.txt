@@ -1,1 +1,67 @@
-nothing is happened
+import os
+import webbrowser
+import subprocess
+from datetime import datetime
+import speech_recognition as sr
+import pyttsx3
+
+# ----------- Setup -----------
+engine = pyttsx3.init()
+engine.setProperty("rate", 170)
+
+def speak(text):
+    print(f"Jarvis: {text}")
+    engine.say(text)
+    engine.runAndWait()
+
+def listen():
+    r = sr.Recognizer()
+    with sr.Microphone() as source:
+        print("🎤 Listening...")
+        r.adjust_for_ambient_noise(source)
+        audio = r.listen(source)
+    try:
+        command = r.recognize_google(audio, language="en-IN").lower()
+        print(f"You: {command}")
+        return command
+    except:
+        return ""
+
+# ----------- Actions ----------
+def run_command(command):
+    if "open notepad" in command:
+        speak("Opening Notepad")
+        subprocess.Popen(["notepad"])
+
+    elif "open chrome" in command:
+        speak("Opening Chrome")
+        subprocess.Popen([r"C:\Program Files\Google\Chrome\Application\chrome.exe"])  
+
+    elif "open youtube" in command:
+        speak("Opening YouTube")
+        webbrowser.open("https://youtube.com")
+
+    elif "search" in command:
+        query = command.replace("search", "")
+        speak(f"Searching {query}")
+        webbrowser.open(f"https://www.google.com/search?q={query}")
+
+    elif "time" in command:
+        now = datetime.now().strftime("%I:%M %p")
+        speak(f"The time is {now}")
+
+    elif "exit" in command or "quit" in command:
+        speak("Goodbye!")
+        return False
+    else:
+        speak("Sorry, I didn't understand.")
+    return True
+
+# ----------- Main ------------
+if __name__ == "__main__":
+    speak("Hello, I am Jarvis. How can I help you?")
+    while True:
+        command = listen()  # 🎙️ Voice mode
+        # command = input("Type command: ").lower()  # 💻 Use this instead if mic fails
+        if not run_command(command):
+            break
